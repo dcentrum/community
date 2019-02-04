@@ -1,0 +1,115 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer.goodchar.com:
+  peer0.localngo1.goodchar.com:
+  peer1.localngo1.goodchar.com:
+  peer0.localngo2.goodchar.com:
+  peer1.localngo2.goodchar.com:
+  peer0.gc.goodchar.com:
+  peer1.gc.goodchar.com:
+  
+networks:
+  goodchar-network:
+
+services:
+
+  orderer.goodchar.com:
+    extends:
+      file:   base/docker-compose-base.yaml
+      service: orderer.goodchar.com
+    container_name: orderer.goodchar.com
+    networks:
+      - goodchar-network
+
+  peer0.localngo1.goodchar.com:
+    container_name: peer0.localngo1.goodchar.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.localngo1.goodchar.com
+    networks:
+      - goodchar-network
+
+  peer1.localngo1.goodchar.com:
+    container_name: peer1.localngo1.goodchar.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.localngo1.goodchar.com
+    networks:
+      - goodchar-network
+
+  peer0.localngo2.goodchar.com:
+    container_name: peer0.localngo2.goodchar.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.localngo2.goodchar.com
+    networks:
+      - goodchar-network
+
+  peer1.localngo2.goodchar.com:
+    container_name: peer1.localngo2.goodchar.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.localngo2.goodchar.com
+    networks:
+      - goodchar-network
+
+  peer0.gc.goodchar.com:
+    container_name: peer0.gc.goodchar.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer0.gc.goodchar.com
+    networks:
+      - goodchar-network
+
+  peer1.gc.goodchar.com:
+    container_name: peer1.gc.goodchar.com
+    extends:
+      file:  base/docker-compose-base.yaml
+      service: peer1.gc.goodchar.com
+    networks:
+      - goodchar-network
+
+
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:$IMAGE_TAG
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      #- CORE_LOGGING_LEVEL=DEBUG
+      - CORE_LOGGING_LEVEL=INFO
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.gc.goodchar.com:7051
+      - CORE_PEER_LOCALMSPID=gcMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/gc.goodchar.com/peers/peer0.gc.goodchar.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/gc.goodchar.com/peers/peer0.gc.goodchar.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/gc.goodchar.com/peers/peer0.gc.goodchar.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/gc.goodchar.com/users/Admin@gc.goodchar.com/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./../chaincode/:/opt/gopath/src/github.com/chaincode
+        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+        - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+    depends_on:
+      - orderer.goodchar.com
+      - peer0.localngo1.goodchar.com
+      - peer1.localngo1.goodchar.com
+      - peer0.localngo2.goodchar.com
+      - peer1.localngo2.goodchar.com
+      - peer0.gc.goodchar.com
+      - peer1.gc.goodchar.com
+    networks:
+      - goodchar-network

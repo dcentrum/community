@@ -1,0 +1,227 @@
+
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+
+Organizations:
+
+    - &OrdererOrg
+        Name: OrdererOrg
+        ID: OrdererMSP
+        MSPDir: crypto-config/ordererOrganizations/goodchar.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
+
+
+    - &LocalNGO1
+        Name: LocalNGO1MSP
+        ID: LocalNGO1MSP
+        MSPDir: crypto-config/peerOrganizations/localngo1.goodchar.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('LocalNGO1MSP.admin', 'LocalNGO1MSP.peer', 'LocalNGO1MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('LocalNGO1MSP.admin', 'LocalNGO1MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('LocalNGO1MSP.admin')"
+        AnchorPeers:
+            - Host: peer0.localngo1.goodchar.com
+              Port: 7051
+
+
+    - &LocalNGO2
+        Name: LocalNGO2MSP
+        ID: LocalNGO2MSP
+        MSPDir: crypto-config/peerOrganizations/localngo2.goodchar.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('LocalNGO2MSP.admin', 'LocalNGO2MSP.peer', 'LocalNGO2MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('LocalNGO2MSP.admin', 'LocalNGO2MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('LocalNGO2MSP.admin')"
+        AnchorPeers:
+            - Host: peer0.localngo2.goodchar.com
+              Port: 7051
+
+
+    - &GC
+        Name: GCMSP
+        ID: GCMSP
+        MSPDir: crypto-config/peerOrganizations/gc.goodchar.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('GCMSP.admin', 'GCMSP.peer', 'GCMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('GCMSP.admin', 'GCMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('GCMSP.admin')"
+        AnchorPeers:
+            - Host: peer0.gc.goodchar.com
+              Port: 7051
+
+
+################################################################################
+#
+#   SECTION: Capabilities
+#
+################################################################################
+
+Capabilities:
+    Channel: &ChannelCapabilities
+        V1_3: true
+    Orderer: &OrdererCapabilities
+        V1_1: true
+    Application: &ApplicationCapabilities
+        V1_3: true
+        V1_2: false
+        V1_1: false
+
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+
+Application: &ApplicationDefaults
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+
+################################################################################
+#
+#   SECTION: Orderer
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for orderer related parameters
+#
+################################################################################
+
+Orderer: &OrdererDefaults
+    OrdererType: solo
+    Addresses:
+        - orderer.goodchar.com:7050
+
+    BatchTimeout: 2s
+
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+
+    Kafka:
+        Brokers:
+            - 127.0.0.1:9092
+
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+
+
+################################################################################
+#
+#   CHANNEL
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for channel related parameters.
+#
+################################################################################
+
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+
+    Capabilities:
+        <<: *ChannelCapabilities
+
+
+################################################################################
+#
+#   Profile
+#
+#   - Different configuration profiles may be encoded here to be specified
+#   as parameters to the configtxgen tool
+#
+################################################################################
+
+Profiles:
+
+    ThreeOrgsOrdererGenesis:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *LocalNGO1
+                    - *LocalNGO2
+                    - *GC
+    ThreeOrgsChannel:
+        Consortium: SampleConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *LocalNGO1
+                - *LocalNGO2
+                - *GC
+            Capabilities:
+                <<: *ApplicationCapabilities
+
