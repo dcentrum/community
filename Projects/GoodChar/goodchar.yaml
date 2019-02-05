@@ -1,0 +1,1126 @@
+swagger: '2.0'
+info:
+  description: 'This is a sample server goodchar server.  You can find out more about Swagger at [http://goodchar.io](http://goodchar.io) or on [irc.freenode.net, #goodchar](http://goodchar.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.'
+  version: 1.0.0
+  title: GoodChar
+  termsOfService: 'http://goodchar.io/terms/'
+  contact:
+    email: apiteam@goodchar.io
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: gc.goodchar.io
+basePath: /gc
+tags:
+  - name: ngo
+    description: ngo resposibilities and duties
+    externalDocs:
+      description: Find out more about our ngo duties and responsibilities
+      url: 'http://ngo.goodchar.io'
+  - name: Volunteer
+    description: Everything about Volunteer Operations
+    externalDocs:
+      description: Find out more
+      url: 'http://goodchar.io'
+  - name: Donor
+    description: Access to goodchar orders
+  - name: Donee
+    description: Operations about donee
+    externalDocs:
+      description: Find out more about our charity process
+      url: 'http://goodchar.io'
+  - name: Asset
+    description: Operations on Asset
+    externalDocs:
+      description: Find out more about Assets
+      url: 'http://goodchar.io'
+  - name: Transactions
+    description: Operations about Transactions
+    externalDocs:
+      description: Find out more about our charity Transactions
+      url: 'http://transactions.goodchar.io'
+  - name: Donation
+    description: All about donations
+    externalDocs:
+      description: Find out more about our donations
+      url: 'http://donations.goodchar.io'    
+  - name: Projects
+    description: All about charity Projects 
+    externalDocs:
+      description: Find out more about our charity projects
+      url: 'http://projects.goodchar.io'    
+  - name: Causes
+    description: Types of Causes
+    externalDocs:
+      description: Find out more about our charity cause
+      url: 'http://causes.goodchar.io'    
+schemes:
+  - https
+  - http
+paths:
+  /ngo/allocateVolunteer:
+    post:
+      tags:
+        - ngo
+      summary: Add a new Volunteer to the Organization
+      description: ''
+      operationId: allocateVolunteer
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Pet object that needs to be added to the store
+          required: true
+          schema:
+            $ref: '#/definitions/Volunteer'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - ngo_auth:
+            - 'write:ngo'
+            - 'read:ngo'
+  /ngo/createDonationCamp:
+    post:
+      tags:
+        - ngo
+      summary: Create a new donation camp for distribution
+      description: ''
+      operationId: createDonationCamp
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Pet object that needs to be added to the store
+          required: true
+          schema:
+            $ref: '#/definitions/Volunteer'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - ngo_auth:
+            - 'write:ngo'
+            - 'read:ngo'
+  /ngo/validateVolunteers:      
+    put:
+      tags:
+        - ngo
+      summary: Update an existing Volunteer
+      description: ''
+      operationId: validateVolunteers
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Volunteer_ID
+          description: Volunteer information that needs to be validated in the organization
+          required: true
+          schema:
+            $ref: '#/definitions/Volunteer'
+      responses:
+        '400':
+          description: Invalid Volunteers ID supplied
+        '404':
+          description: Volunteer not found
+        '405':
+          description: Volunteers Validation exception
+      security:
+        - ngo_auth:
+            - 'write:ngo'
+            - 'read:ngo'
+  /ngo/allocateAssetsToVolunteer:      
+    put:
+      tags:
+        - ngo
+      summary: Allocate Asset to volunteer
+      description: ''
+      operationId: allocateAssetsToVolunteer
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Volunteer_ID,Asset_id
+          description: Volunteer information that needs to be updated to the organization
+          required: true
+          schema:
+            $ref: '#/definitions/Asset'
+      responses:
+        '400':
+          description: Invalid Volunteer ID / Asset ID supplied
+        '404':
+          description: Volunteer/Asset not found
+        '405':
+          description: Volunteer/Asset Validation exception
+      security:
+        - ngo_auth:
+            - 'write:ngo'
+            - 'read:ngo'
+  /ngo/allocateLogistics:      
+    post:
+      tags:
+        - ngo
+      summary: allocate logistics to donation
+      description: ''
+      operationId: allocateLogistics
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Asset_id, Logistic_Id
+          description: Volunteer information that needs to be updated to the organization
+          required: true
+          schema:
+            $ref: '#/definitions/Logistics'
+      responses:
+        '400':
+          description: Invalid Asset ID / Logistic allotment supplied
+        '404':
+          description: Asset id / logistic allotment not found
+        '405':
+          description: Asset id / logistic allotment  Validation exception
+      security:
+        - ngo_auth:
+            - 'write:ngo'
+            - 'read:ngo'      
+  /ngo/listProject:
+    get:
+      tags:
+        - ngo
+      summary: Finds projects listed in org
+      description: Multiple projects lists
+      operationId: listProject
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: status
+          in: query
+          description: Project Status values that need to be considered for filter
+          required: true
+          type: array
+          items:
+            type: string
+            enum:
+              - Active
+              - Completed
+              - To Be Tagged
+            default: available
+          collectionFormat: multi
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Project'
+        '400':
+          description: Invalid status value
+      security:
+        - ngo_auth:
+            - 'write:ngo'
+            - 'read:ngo'      
+  /ngo/listCauses:
+    get:
+      tags:
+        - ngo
+      summary: Finds Causes listed in org
+      description: Multiple Causes lists
+      operationId: listCauses
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: Cause_Name  
+          in: query
+          description: causes  values that need to be considered for filter
+          required: true
+          type: array
+          items:
+            type: string
+            enum:
+              - Food
+              - Cloths
+              - Others
+            default: available
+          collectionFormat: multi
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Causes'
+        '400':
+          description: Invalid status value
+      security:
+        - ngo_auth:
+            - 'write:ngo'
+            - 'read:ngo'        
+  /volunteer/registerSelf:
+    post:
+      tags:
+        - Volunteer
+      summary: register as new volunteer 
+      description: ''
+      operationId: VolunteerregisterSelf
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Volunteer details to be added
+          required: true
+          schema:
+            $ref: '#/definitions/Volunteer'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'    
+  /volunteer/pickupAssetLot:
+    post:
+      tags:
+        - Volunteer
+      summary: pick asset & assign lot #
+      description: ''
+      operationId: pickupAssetLot
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Asset_id
+          description: Asset details to be assigned with lot#
+          required: true
+          schema:
+            $ref: '#/definitions/Asset'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'    
+  /volunteer/startDonationCamp:      
+    put:
+      tags:
+        - Volunteer
+      summary: Start donation camp
+      description: ''
+      operationId: startDonationCamp
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Project_Id
+          description: Donation camp id will be generated and assigned to project
+          required: true
+          schema:
+            $ref: '#/definitions/Project'
+      responses:
+        '400':
+          description: Invalid project id/ camp id supplied
+        '404':
+          description: project not found
+        '405':
+          description: project Validation exception
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'      
+  /volunteer/closeDonationCamp:      
+    put:
+      tags:
+        - Volunteer
+      summary: close donation camp
+      description: ''
+      operationId: closeDonationCamp
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Project_Id
+          description: Donation camp  will be updated with status completed
+          required: true
+          schema:
+            $ref: '#/definitions/Project'
+      responses:
+        '400':
+          description: Invalid project id/ camp id supplied
+        '404':
+          description: project not found
+        '405':
+          description: project Validation exception
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'      
+      
+  /volunteer/scanAssetForDonee:      
+    put:
+      tags:
+        - Volunteer
+      summary: scan asset to distribute to donee
+      description: ''
+      operationId: scanAssetForDonee
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Asset_id
+          description: scan asset will be get QR Code and distribute to donee
+          required: true
+          schema:
+            $ref: '#/definitions/Asset'
+      responses:
+        '400':
+          description: Invalid project id/ camp id supplied
+        '404':
+          description: project not found
+        '405':
+          description: project Validation exception
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'    
+  /volunteer/registerDonee:
+    post:
+      tags:
+        - Volunteer
+      summary: register as new donee 
+      description: ''
+      operationId: registerDoneeByVolunteer
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Donne_id
+          description: Donee details to be added
+          required: true
+          schema:
+            $ref: '#/definitions/Donee'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'  
+  /volunteer/scanDoneeFingerPrint:
+    post:
+      tags:
+        - Volunteer
+      summary: scan donee biometric
+      description: ''
+      operationId: scanDoneeFingerPrint
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Donne_id
+          description: Donee biometrics to be scanned
+          required: true
+          schema:
+            $ref: '#/definitions/Donee'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'      
+  /volunteer/playAudio:
+    get:
+      tags:
+        - Volunteer
+      summary: Play audio in distribution process
+      description: ''
+      operationId: playAudio
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: Donee_id
+          in: path
+          description: ''
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Donee'
+        '400':
+          description: Invalid status value
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'    
+  /Donor/registerSelf:
+    post:
+      tags:
+        - Donor
+      summary: register as new Donor 
+      description: ''
+      operationId: DonorregisterSelf
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: donor details to be added
+          required: true
+          schema:
+            $ref: '#/definitions/Donor'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - donor_auth:
+            - 'write:donor'
+            - 'read:donor'    
+  /Donor/donateAsset:      
+    put:
+      tags:
+        - Donor
+      summary: donate Asset to ngo
+      description: ''
+      operationId: donateAsset
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Donor_id
+          description: donate asset to ngo
+          required: true
+          schema:
+            $ref: '#/definitions/Asset'
+      responses:
+        '400':
+          description: Invalid Donor ID / Asset ID supplied
+        '404':
+          description: Donor/Asset not found
+        '405':
+          description: Donor/Asset Validation exception
+      security:
+        - donor_auth:
+            - 'write:donor'
+            - 'read:donor'
+  /Donee/registerDonee:
+    post:
+      tags:
+        - Donee
+      summary: register Donee details
+      description: ''
+      operationId: registerDonee
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Donee details to be added
+          required: true
+          schema:
+            $ref: '#/definitions/Donee'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'    
+  /Donee/requestHelp:      
+    post:
+      tags:
+        - Donee
+      summary: request Help
+      description: ''
+      operationId: requestHelp
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Donee_id
+          description: request help
+          required: true
+          schema:
+            $ref: '#/definitions/Donee'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - donee_auth:
+            - 'write:donee'
+            - 'read:donee'  
+  /Donation/retrieveDonation:
+    get:
+      tags:
+        - Donation
+      summary: List donation
+      description: Display donation details
+      operationId: retrieveDonation
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: Donation_id  
+          in: query
+          description: list donation details
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Donation'
+        '400':
+          description: Invalid status value
+      security:
+        - donor_auth:
+            - 'write:donor'
+            - 'read:donor'        
+  /Transactions/createTransaction:      
+    put:
+      tags:
+        - Transactions
+      summary: Start transation
+      description: ''
+      operationId: createTransaction
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Transaction_ID
+          description: start donation/distribution transaction
+          required: true
+          schema:
+            $ref: '#/definitions/Transactions'
+      responses:
+        '400':
+          description: Invalid transaction id/ NGO/Donor/Volunteer id supplied
+        '404':
+          description: trx id generation issue
+        '405':
+          description: transaction Validation exception
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'      
+  /Transactions/retriveTransaction:
+    get:
+      tags:
+        - Transactions
+      summary: List transactions
+      description: Display transaction details
+      operationId: retriveTransaction
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: Transaction_ID  
+          in: query
+          description: list transaction details
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Transactions'
+        '400':
+          description: Invalid status value
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'    
+  /Asset/registerAsset:
+    post:
+      tags:
+        - Asset
+      summary: Create a new Asset
+      description: ''
+      operationId: registerAsset
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Asset details will be  added to the repository
+          required: true
+          schema:
+            $ref: '#/definitions/Asset'
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'    
+  /Asset/assciateAssetToLot:      
+    put:
+      tags:
+        - ngo
+      summary: associate Asset with lot number
+      description: ''
+      operationId: assciateAssetToLot
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: Asset_id
+          description: Assing lot number to asset
+          required: true
+          schema:
+            $ref: '#/definitions/Asset'
+      responses:
+        '400':
+          description: Invalid Lot  / Asset ID supplied
+        '404':
+          description: Asset not found
+        '405':
+          description: Asset Validation exception
+      security:
+        - volunteer_auth:
+            - 'write:volunteer'
+            - 'read:volunteer'      
+  /user/login:
+    get:
+      tags:
+        - user
+      summary: Logs user into the system
+      description: ''
+      operationId: loginUser
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: username
+          in: query
+          description: The user name for login
+          required: true
+          type: string
+        - name: password
+          in: query
+          description: The password for login in clear text
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: string
+          headers:
+            X-Rate-Limit:
+              type: integer
+              format: int32
+              description: calls per hour allowed by the user
+            X-Expires-After:
+              type: string
+              format: date-time
+              description: date in UTC when token expires
+        '400':
+          description: Invalid username/password supplied
+  /user/logout:
+    get:
+      tags:
+        - user
+      summary: Logs out current logged in user session
+      description: ''
+      operationId: logoutUser
+      produces:
+        - application/xml
+        - application/json
+      parameters: []
+      responses:
+        default:
+          description: successful operation
+securityDefinitions:
+  volunteer_auth:
+    type: oauth2
+    authorizationUrl: 'https://gc.goodchar.io/oauth/authorize'
+    flow: implicit
+    scopes:
+      'write:volunteer': modify Volunteer in your Organization
+      'read:volunteer': read your Volunteers
+  ngo_auth:
+    type: oauth2
+    authorizationUrl: 'https://gc.goodchar.io/oauth/authorize'
+    flow: implicit
+    scopes:
+      'write:ngo': ngo modify operations in Organization
+      'read:ngo': ngo read operations    
+  donor_auth:
+    type: oauth2
+    authorizationUrl: 'https://gc.goodchar.io/oauth/authorize'
+    flow: implicit
+    scopes:
+      'write:donor': donor modify operations in Organization
+      'read:donor': donor read operations    
+  donee_auth:
+    type: oauth2
+    authorizationUrl: 'https://gc.goodchar.io/oauth/authorize'
+    flow: implicit
+    scopes:
+      'write:donee': donor modify operations in Organization
+      'read:donee': donor read operations        
+  api_key:
+    type: apiKey
+    name: api_key
+    in: header
+definitions:
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      username:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      userStatus:
+        type: integer
+        format: int32
+        description: User Status
+    xml:
+      name: User
+  Category:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+    xml:
+      name: Category
+  Tag:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      name:
+        type: string
+    xml:
+      name: Tag
+  NGO:
+    type: object
+    properties:
+      NGO_ID:
+        type: integer
+        format: int64
+      NGO_NAME:
+        type: string
+      NGO_poc:
+        type: string
+      NGO_Phone:
+        type: string
+      NGO_Email:
+        type: string
+      password:
+        type: string
+      NGO_Address:
+        type: string
+    xml:
+      name: NGO
+  Volunteer:
+    type: object
+    properties:
+      Volunteer_ID:
+        type: integer
+        format: int64
+      Volunteer_Name:
+        type: string
+      Volunteer_Phone:
+        type: string
+      Volunteer_Email:
+        type: string
+      password:
+        type: string
+      Volunteer_Address:
+        type: string
+      Volunteer_Govt_Id:
+        type: string
+      Volunteer_Biometric_Details:
+        type: string
+      Volunteer_photo:
+        type: string
+      Volunteer_comments:
+        type: string
+    xml:
+      name: Volunteer
+  Transactions:
+    type: object
+    properties:
+      Transaction_ID:
+        type: integer
+        format: int64
+      NGO_ID:
+        type: integer
+        format: int64
+      Donor_id:
+        type: integer
+        format: int64
+      Donation_id:
+        type: integer
+        format: int64  
+      Volunteer_id:
+        type: integer
+        format: int64  
+      Donee_id:
+        type: integer
+        format: int64    
+      Asset_id:
+        type: integer
+        format: int64  
+      Cause_id:
+        type: integer
+        format: int64    
+      Comments:
+        type: string
+    xml:
+      name: Transactions
+  Donor:
+    type: object
+    properties:
+      Donor_id:
+        type: integer
+        format: int64
+      Donor_name:
+        type: string
+      Donor_mobile_number:
+        type: string
+      Donor_email:
+        type: string
+      Donor_Address:
+        type: string
+      Donor_Govt_id:
+        type: string
+    xml:
+      name: Donor
+  Donation:
+    type: object
+    properties:
+      Donation_id:
+        type: integer
+        format: int64
+      Donation_name:
+        type: string
+      Donor_cause:
+        type: string
+      Donation_Items:
+        type: string
+      Donation_amount:
+        type: integer
+      Donation_camp_id:
+        type: integer    
+      Comments:
+        type: string
+    xml:
+      name: Donation
+  Asset:
+    type: object
+    properties:
+      Asset_id:
+        type: integer
+        format: int64
+      Asset_Bundle_ID:
+        type: integer
+      Donor_id:
+        type: integer
+      Asset_QR_Code:
+        type: string
+      Asset_Status:
+        type: string
+      Cause_ID:
+        type: integer
+    xml:
+      name: Asset
+  Donee:
+    type: object
+    properties:
+      Donee_id:
+        type: integer
+        format: int64
+      Donee_name:
+        type: string
+      Donee_mobile_number:
+        type: string
+      Donee_email:
+        type: string
+      Donee_Address:
+        type: string
+      Donee_Govt_id:
+        type: string
+      Donee_Received_Items:
+        type: string
+      Donee_Received_amount:
+        type: integer
+        format: int64
+      Donee_Biometric_Details:
+        type: string
+      Donee_photo:
+        type: string
+      Donee_comments:
+        type: string
+    xml:
+      name: Donee
+  Causes:
+    type: object
+    properties:
+      Cause_Id:
+        type: integer
+        format: int64
+      Cause_Name:
+        type: string
+      Cause_type:
+        type: string
+      Comments:
+        type: string
+    xml:
+      name: Causes
+  Project:
+    type: object
+    properties:
+      Project_Id:
+        type: integer
+        format: int64
+      Project_Name:
+        type: string
+      Donation_Camp_id:
+        type: integer
+      Donation_camp_status:
+        type: string    
+      Cause_Id:
+        type: integer
+        format: int64    
+      Project_status:
+        type: string
+      Comments:
+        type: string
+    xml:
+      name: Project
+  Logistics:
+    type: object
+    properties:
+      Logistics_Id:
+        type: integer
+        format: int64
+      Logistics_Name:
+        type: string
+      Logistics_type:
+        type: string
+      Comments:
+        type: string
+      Asset_id:
+        type: integer
+    xml:
+      name: Logistics
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      type:
+        type: string
+      message:
+        type: string
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
